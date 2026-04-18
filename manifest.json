@@ -1,0 +1,17 @@
+{
+  "name": "Vínculos — Mapa Emocional",
+  "short_name": "Vínculos",
+  "description": "Registre suas emoções em relação às pessoas da sua vida",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0618",
+  "theme_color": "#1a0a2e",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%231a0a2e' rx='36'/><text y='130' x='50%' text-anchor='middle' font-size='110'>💜</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    }
+  ]
+}

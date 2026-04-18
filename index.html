@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#1a0a2e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Vínculos">
+<link rel="manifest" href="manifest.json">
+<title>Vínculos — Mapa Emocional</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0618;
+    --surface: #1a0f2e;
+    --surface2: #231540;
+    --border: rgba(180,120,255,0.15);
+    --accent: #b478ff;
+    --accent2: #ff78c4;
+    --text: #f0e6ff;
+    --text-dim: rgba(240,230,255,0.5);
+    --radius: 18px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content:'';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(140,60,255,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(255,80,180,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: rgba(26,15,46,0.95);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid var(--border);
+    display: flex;
+    z-index: 100;
+  }
+
+  nav button {
+    flex: 1;
+    padding: 14px 8px 18px;
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 10px;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: color 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+
+  nav button .icon { font-size: 22px; }
+  nav button.active { color: var(--accent); }
+
+  /* SCREENS */
+  .screen {
+    display: none;
+    position: relative;
+    z-index: 1;
+    padding: 60px 20px 100px;
+    min-height: 100vh;
+  }
+  .screen.active { display: block; }
+
+  /* HEADER */
+  .screen-header {
+    margin-bottom: 28px;
+  }
+  .screen-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+  }
+  .screen-header p {
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-top: 6px;
+  }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 14px;
+    box-shadow: var(--shadow);
+  }
+
+  /* ADD PERSON */
+  .add-form {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .add-form input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .add-form input::placeholder { color: var(--text-dim); }
+  .add-form input:focus { border-color: var(--accent); }
+
+  .btn-add {
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 12px;
+    width: 50px;
+    height: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(180,120,255,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-add:active { transform: scale(0.93); }
+
+  /* PERSON ITEM */
+  .person-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .person-item:active { transform: scale(0.98); }
+
+  .avatar {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-family: 'Playfair Display', serif;
+  }
+
+  .person-info { flex: 1; }
+  .person-name {
+    font-size: 16px;
+    font-weight: 500;
+  }
+  .person-emotion-preview {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .person-delete {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 18px;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 8px;
+    transition: color 0.2s;
+  }
+  .person-delete:hover { color: #ff6b6b; }
+
+  /* EMOTION DETAIL SCREEN */
+  #screen-detail .back-btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 8px 14px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .detail-avatar {
+    width: 72px; height: 72px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    margin: 0 auto 16px;
+    box-shadow: 0 0 40px rgba(180,120,255,0.4);
+  }
+
+  .detail-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+
+  .today-label {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 13px;
+    margin-bottom: 24px;
+  }
+
+  /* EMOTION PICKER */
+  .emotion-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .emotion-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .emotion-btn:active { transform: scale(0.96); }
+
+  .emotion-btn.selected {
+    border-color: var(--accent);
+    background: rgba(180,120,255,0.15);
+    box-shadow: 0 0 20px rgba(180,120,255,0.2);
+  }
+
+  .emotion-emoji { font-size: 22px; flex-shrink: 0; }
+  .emotion-text { flex: 1; }
+  .emotion-name {
+    color: var(--text);
+    font-size: 13px;
+    font-weight: 500;
+    display: block;
+  }
+  .emotion-desc {
+    color: var(--text-dim);
+    font-size: 10px;
+    display: block;
+    margin-top: 1px;
+  }
+
+  .btn-save {
+    width: 100%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none;
+    border-radius: 14px;
+    padding: 16px;
+    color: white;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(180,120,255,0.4);
+    transition: transform 0.15s, box-shadow 0.15s;
+    margin-bottom: 28px;
+  }
+  .btn-save:active { transform: scale(0.97); }
+
+  /* CALENDAR */
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    margin-bottom: 14px;
+    font-style: italic;
+  }
+
+  .calendar-list { display: flex; flex-direction: column; gap: 8px; }
+
+  .cal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 16px;
+  }
+
+  .cal-date {
+    font-size: 11px;
+    color: var(--text-dim);
+    width: 70px;
+    flex-shrink: 0;
+  }
+
+  .cal-emoji { font-size: 22px; }
+  .cal-name { font-size: 13px; font-weight: 500; }
+
+  /* STATS SCREEN */
+  .stat-person-card {
+    margin-bottom: 14px;
+  }
+
+  .stat-person-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .stat-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 15px;
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .emotion-bar-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .emotion-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+  }
+
+  .emotion-bar-label {
+    width: 20px;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .bar-bg {
+    flex: 1;
+    height: 8px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  .bar-count {
+    color: var(--text-dim);
+    font-size: 11px;
+    width: 20px;
+    text-align: right;
+  }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--accent);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 99px;
+    font-size: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    z-index: 999;
+    white-space: nowrap;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-dim);
+    padding: 40px 20px;
+    font-size: 14px;
+  }
+  .empty-state .big { font-size: 48px; margin-bottom: 12px; }
+
+  .chip {
+    display: inline-block;
+    background: var(--surface2);
+    border-radius: 99px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 16px;
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SCREEN: PESSOAS -->
+<div class="screen active" id="screen-pessoas">
+  <div class="screen-header">
+    <h1>Vínculos</h1>
+    <p>Seu mapa emocional pessoal</p>
+  </div>
+
+  <div class="add-form">
+    <input type="text" id="input-pessoa" placeholder="Nome da pessoa..." maxlength="40">
+    <button class="btn-add" onclick="addPessoa()">+</button>
+  </div>
+
+  <div id="lista-pessoas">
+    <div class="empty-state" id="empty-pessoas">
+      <div class="big">🌱</div>
+      Adicione alguém para começar a mapear suas emoções.
+    </div>
+  </div>
+</div>
+
+<!-- SCREEN: DETALHE -->
+<div class="screen" id="screen-detail">
+  <button class="back-btn" onclick="showScreen('pessoas')">← Voltar</button>
+  <div class="detail-avatar" id="detail-avatar"></div>
+  <div class="detail-name" id="detail-name"></div>
+  <div class="today-label" id="detail-date"></div>
+
+  <div class="emotion-grid" id="emotion-grid"></div>
+
+  <button class="btn-save" onclick="saveEmotion()">💾 Salvar emoção de hoje</button>
+
+  <div class="section-title">Histórico</div>
+  <div class="calendar-list" id="calendar-list"></div>
+</div>
+
+<!-- SCREEN: STATS -->
+<div class="screen" id="screen-stats">
+  <div class="screen-header">
+    <h1>Análise</h1>
+    <p>Padrões emocionais ao longo do tempo</p>
+  </div>
+  <div id="stats-content"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <button class="active" id="nav-pessoas" onclick="showScreen('pessoas')">
+    <span class="icon">👥</span>
+    Pessoas
+  </button>
+  <button id="nav-stats" onclick="showScreen('stats')">
+    <span class="icon">📊</span>
+    Análise
+  </button>
+</nav>
+
+<script>
+const EMOTIONS = [
+  { emoji: '❤️',  name: 'Amor',        desc: 'Forte conexão, carinho real' },
+  { emoji: '😍',  name: 'Atração',     desc: 'Interesse, "gosto de você"' },
+  { emoji: '🤝',  name: 'Amizade',     desc: 'Confiança leve, parceria' },
+  { emoji: '😐',  name: 'Indiferença', desc: 'Não liga, tanto faz' },
+  { emoji: '😬',  name: 'Ansiedade',   desc: 'Nervoso perto da pessoa' },
+  { emoji: '😞',  name: 'Decepção',    desc: 'Esperava mais dela' },
+  { emoji: '😤',  name: 'Frustração',  desc: 'A pessoa irrita ou atrapalha' },
+  { emoji: '😡',  name: 'Raiva',       desc: 'Já passou do limite' },
+  { emoji: '😒',  name: 'Desprezo',    desc: 'Acha inferior ou insuportável' },
+  { emoji: '😨',  name: 'Medo',        desc: 'Evita, se sente desconfortável' },
+];
+
+let pessoas = JSON.parse(localStorage.getItem('vinculos_pessoas') || '[]');
+let emocoes = JSON.parse(localStorage.getItem('vinculos_emocoes') || '{}');
+let currentPessoaId = null;
+let selectedEmotion = null;
+
+function save() {
+  localStorage.setItem('vinculos_pessoas', JSON.stringify(pessoas));
+  localStorage.setItem('vinculos_emocoes', JSON.stringify(emocoes));
+}
+
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function formatDate(str) {
+  const [y,m,d] = str.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + (name === 'pessoas' ? 'pessoas' : name === 'detail' ? 'detail' : 'stats')).classList.add('active');
+  if (name !== 'detail') {
+    const nb = document.getElementById('nav-' + (name === 'pessoas' ? 'pessoas' : 'stats'));
+    if (nb) nb.classList.add('active');
+  }
+  if (name === 'stats') renderStats();
+}
+
+function addPessoa() {
+  const inp = document.getElementById('input-pessoa');
+  const nome = inp.value.trim();
+  if (!nome) return;
+  const p = { id: Date.now().toString(), nome };
+  pessoas.push(p);
+  save();
+  inp.value = '';
+  renderPessoas();
+  showToast('✨ ' + nome + ' adicionado(a)!');
+}
+
+document.getElementById('input-pessoa').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addPessoa();
+});
+
+function deletePessoa(id, e) {
+  e.stopPropagation();
+  if (!confirm('Remover esta pessoa e todo o histórico emocional?')) return;
+  pessoas = pessoas.filter(p => p.id !== id);
+  delete emocoes[id];
+  save();
+  renderPessoas();
+}
+
+function renderPessoas() {
+  const el = document.getElementById('lista-pessoas');
+  const empty = document.getElementById('empty-pessoas');
+  if (pessoas.length === 0) {
+    el.innerHTML = '';
+    el.appendChild(empty);
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  el.innerHTML = '';
+  pessoas.forEach(p => {
+    const hist = emocoes[p.id] || {};
+    const todayEmo = hist[today()];
+    const keys = Object.keys(hist).sort().reverse();
+    let preview = todayEmo
+      ? `Hoje: ${todayEmo.emoji} ${todayEmo.name}`
+      : (keys.length ? `Último: ${hist[keys[0]].emoji} ${hist[keys[0]].name}` : 'Nenhum registro ainda');
+
+    const card = document.createElement('div');
+    card.className = 'card person-item';
+    card.onclick = () => openDetail(p.id);
+    card.innerHTML = `
+      <div class="avatar">${p.nome[0].toUpperCase()}</div>
+      <div class="person-info">
+        <div class="person-name">${escHtml(p.nome)}</div>
+        <div class="person-emotion-preview">${preview}</div>
+      </div>
+      <button class="person-delete" onclick="deletePessoa('${p.id}', event)">🗑</button>
+    `;
+    el.appendChild(card);
+  });
+}
+
+function openDetail(id) {
+  currentPessoaId = id;
+  selectedEmotion = null;
+  const p = pessoas.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('detail-avatar').textContent = p.nome[0].toUpperCase();
+  document.getElementById('detail-name').textContent = p.nome;
+
+  const td = today();
+  document.getElementById('detail-date').textContent = '📅 ' + formatDate(td);
+
+  // emotion grid
+  const grid = document.getElementById('emotion-grid');
+  grid.innerHTML = '';
+  const hist = emocoes[id] || {};
+  const todayEmo = hist[td];
+
+  EMOTIONS.forEach((em, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'emotion-btn' + (todayEmo && todayEmo.name === em.name ? ' selected' : '');
+    btn.innerHTML = `
+      <span class="emotion-emoji">${em.emoji}</span>
+      <span class="emotion-text">
+        <span class="emotion-name">${em.name}</span>
+        <span class="emotion-desc">${em.desc}</span>
+      </span>
+    `;
+    btn.onclick = () => {
+      document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedEmotion = em;
+    };
+    grid.appendChild(btn);
+    if (todayEmo && todayEmo.name === em.name) selectedEmotion = em;
+  });
+
+  // calendar history
+  const calList = document.getElementById('calendar-list');
+  calList.innerHTML = '';
+  const sorted = Object.keys(hist).sort().reverse();
+
+  if (sorted.length === 0) {
+    calList.innerHTML = '<div class="empty-state" style="padding:20px 0"><div class="big" style="font-size:32px">📅</div>Nenhum registro ainda.</div>';
+  } else {
+    sorted.forEach(date => {
+      const e = hist[date];
+      const item = document.createElement('div');
+      item.className = 'cal-item';
+      item.innerHTML = `
+        <span class="cal-date">${formatDate(date)}</span>
+        <span class="cal-emoji">${e.emoji}</span>
+        <span class="cal-name">${e.name}</span>
+      `;
+      calList.appendChild(item);
+    });
+  }
+
+  showScreen('detail');
+}
+
+function saveEmotion() {
+  if (!selectedEmotion) { showToast('Selecione uma emoção primeiro!'); return; }
+  if (!emocoes[currentPessoaId]) emocoes[currentPessoaId] = {};
+  emocoes[currentPessoaId][today()] = selectedEmotion;
+  save();
+  showToast(selectedEmotion.emoji + ' Emoção salva!');
+  openDetail(currentPessoaId); // refresh
+}
+
+function renderStats() {
+  const el = document.getElementById('stats-content');
+  if (pessoas.length === 0) {
+    el.innerHTML = '<div class="empty-state"><div class="big">📊</div>Adicione pessoas e registre emoções para ver análises.</div>';
+    return;
+  }
+
+  el.innerHTML = '';
+
+  pessoas.forEach(p => {
+    const hist = emocoes[p.id] || {};
+    const total = Object.keys(hist).length;
+    if (total === 0) return;
+
+    // count emotions
+    const counts = {};
+    EMOTIONS.forEach(e => counts[e.name] = 0);
+    Object.values(hist).forEach(e => { if (counts[e.name] !== undefined) counts[e.name]++; });
+    const max = Math.max(...Object.values(counts), 1);
+
+    // dominant emotion
+    let dominant = null;
+    let dMax = 0;
+    EMOTIONS.forEach(e => { if (counts[e.name] > dMax) { dMax = counts[e.name]; dominant = e; } });
+
+    const card = document.createElement('div');
+    card.className = 'card stat-person-card';
+
+    let barsHtml = EMOTIONS.filter(e => counts[e.name] > 0).map(e => `
+      <div class="emotion-bar-row">
+        <span class="emotion-bar-label">${e.emoji}</span>
+        <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(counts[e.name]/max*100)}%"></div></div>
+        <span class="bar-count">${counts[e.name]}</span>
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="stat-person-header">
+        <div class="stat-avatar">${p.nome[0].toUpperCase()}</div>
+        <div>
+          <div style="font-weight:500;font-size:15px">${escHtml(p.nome)}</div>
+          <div style="font-size:11px;color:var(--text-dim)">${total} registro${total!==1?'s':''} · Predomina: ${dominant ? dominant.emoji+' '+dominant.name : '—'}</div>
+        </div>
+      </div>
+      <div class="emotion-bar-wrap">${barsHtml}</div>
+    `;
+    el.appendChild(card);
+  });
+
+  if (el.innerHTML === '') {
+    el.innerHTML = '<div class="empty-state"><div class="big">📊</div>Registre emoções para ver análises aqui.</div>';
+  }
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// Init
+renderPessoas();
+
+// Register SW
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>
