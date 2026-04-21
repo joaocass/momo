@@ -2,746 +2,308 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#1a0a2e">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Vínculos">
-<link rel="manifest" href="manifest.json">
-<title>Vínculos — Mapa Emocional</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionário — Algas, Protozoários e Fungos</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;1,300&family=DM+Mono:wght@400;500&family=Nunito:wght@400;600;700&display=swap');
   :root {
-    --bg: #0d0618;
-    --surface: #1a0f2e;
-    --surface2: #231540;
-    --border: rgba(180,120,255,0.15);
-    --accent: #b478ff;
-    --accent2: #ff78c4;
-    --text: #f0e6ff;
-    --text-dim: rgba(240,230,255,0.5);
-    --radius: 18px;
-    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --bg:#0e1117;--surface:#161b27;--card:#1c2333;--border:#2a3548;
+    --accent:#3dd68c;--accent2:#5b8dee;--wrong:#e05454;
+    --text:#e2e8f0;--muted:#7c8fa6;--highlight:rgba(61,214,140,0.08);
   }
-
-  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content:'';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(140,60,255,0.18) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(255,80,180,0.12) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  /* NAV */
-  nav {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background: rgba(26,15,46,0.95);
-    backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
-    display: flex;
-    z-index: 100;
-  }
-
-  nav button {
-    flex: 1;
-    padding: 14px 8px 18px;
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 10px;
-    font-family: 'DM Sans', sans-serif;
-    letter-spacing: 0.05em;
-    cursor: pointer;
-    transition: color 0.2s;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-
-  nav button .icon { font-size: 22px; }
-  nav button.active { color: var(--accent); }
-
-  /* SCREENS */
-  .screen {
-    display: none;
-    position: relative;
-    z-index: 1;
-    padding: 60px 20px 100px;
-    min-height: 100vh;
-  }
-  .screen.active { display: block; }
-
-  /* HEADER */
-  .screen-header {
-    margin-bottom: 28px;
-  }
-  .screen-header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 1.1;
-  }
-  .screen-header p {
-    color: var(--text-dim);
-    font-size: 13px;
-    margin-top: 6px;
-  }
-
-  /* CARDS */
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 14px;
-    box-shadow: var(--shadow);
-  }
-
-  /* ADD PERSON */
-  .add-form {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 24px;
-  }
-
-  .add-form input {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 18px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .add-form input::placeholder { color: var(--text-dim); }
-  .add-form input:focus { border-color: var(--accent); }
-
-  .btn-add {
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: 12px;
-    width: 50px;
-    height: 50px;
-    font-size: 24px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 16px rgba(180,120,255,0.4);
-    transition: transform 0.15s, box-shadow 0.15s;
-    flex-shrink: 0;
-  }
-  .btn-add:active { transform: scale(0.93); }
-
-  /* PERSON ITEM */
-  .person-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    cursor: pointer;
-    transition: transform 0.15s;
-  }
-  .person-item:active { transform: scale(0.98); }
-
-  .avatar {
-    width: 48px; height: 48px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
-    font-weight: 700;
-    flex-shrink: 0;
-    font-family: 'Playfair Display', serif;
-  }
-
-  .person-info { flex: 1; }
-  .person-name {
-    font-size: 16px;
-    font-weight: 500;
-  }
-  .person-emotion-preview {
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-top: 2px;
-  }
-
-  .person-delete {
-    background: none;
-    border: none;
-    color: var(--text-dim);
-    font-size: 18px;
-    cursor: pointer;
-    padding: 8px;
-    border-radius: 8px;
-    transition: color 0.2s;
-  }
-  .person-delete:hover { color: #ff6b6b; }
-
-  /* EMOTION DETAIL SCREEN */
-  #screen-detail .back-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    padding: 8px 14px;
-    cursor: pointer;
-    margin-bottom: 20px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .detail-avatar {
-    width: 72px; height: 72px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 32px;
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    margin: 0 auto 16px;
-    box-shadow: 0 0 40px rgba(180,120,255,0.4);
-  }
-
-  .detail-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 26px;
-    text-align: center;
-    margin-bottom: 6px;
-  }
-
-  .today-label {
-    text-align: center;
-    color: var(--text-dim);
-    font-size: 13px;
-    margin-bottom: 24px;
-  }
-
-  /* EMOTION PICKER */
-  .emotion-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 28px;
-  }
-
-  .emotion-btn {
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: 14px;
-    padding: 14px 12px;
-    cursor: pointer;
-    text-align: left;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .emotion-btn:active { transform: scale(0.96); }
-
-  .emotion-btn.selected {
-    border-color: var(--accent);
-    background: rgba(180,120,255,0.15);
-    box-shadow: 0 0 20px rgba(180,120,255,0.2);
-  }
-
-  .emotion-emoji { font-size: 22px; flex-shrink: 0; }
-  .emotion-text { flex: 1; }
-  .emotion-name {
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 500;
-    display: block;
-  }
-  .emotion-desc {
-    color: var(--text-dim);
-    font-size: 10px;
-    display: block;
-    margin-top: 1px;
-  }
-
-  .btn-save {
-    width: 100%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border: none;
-    border-radius: 14px;
-    padding: 16px;
-    color: white;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    box-shadow: 0 4px 20px rgba(180,120,255,0.4);
-    transition: transform 0.15s, box-shadow 0.15s;
-    margin-bottom: 28px;
-  }
-  .btn-save:active { transform: scale(0.97); }
-
-  /* CALENDAR */
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    margin-bottom: 14px;
-    font-style: italic;
-  }
-
-  .calendar-list { display: flex; flex-direction: column; gap: 8px; }
-
-  .cal-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 12px 16px;
-  }
-
-  .cal-date {
-    font-size: 11px;
-    color: var(--text-dim);
-    width: 70px;
-    flex-shrink: 0;
-  }
-
-  .cal-emoji { font-size: 22px; }
-  .cal-name { font-size: 13px; font-weight: 500; }
-
-  /* STATS SCREEN */
-  .stat-person-card {
-    margin-bottom: 14px;
-  }
-
-  .stat-person-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 10px;
-  }
-
-  .stat-avatar {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
-    font-family: 'Playfair Display', serif;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .emotion-bar-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .emotion-bar-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 12px;
-  }
-
-  .emotion-bar-label {
-    width: 20px;
-    text-align: center;
-    font-size: 16px;
-  }
-
-  .bar-bg {
-    flex: 1;
-    height: 8px;
-    background: var(--surface2);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-
-  .bar-fill {
-    height: 100%;
-    border-radius: 99px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    transition: width 0.6s cubic-bezier(0.34,1.56,0.64,1);
-  }
-
-  .bar-count {
-    color: var(--text-dim);
-    font-size: 11px;
-    width: 20px;
-    text-align: right;
-  }
-
-  /* TOAST */
-  .toast {
-    position: fixed;
-    bottom: 90px;
-    left: 50%;
-    transform: translateX(-50%) translateY(20px);
-    background: var(--accent);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 99px;
-    font-size: 14px;
-    opacity: 0;
-    pointer-events: none;
-    transition: all 0.3s;
-    z-index: 999;
-    white-space: nowrap;
-  }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .empty-state {
-    text-align: center;
-    color: var(--text-dim);
-    padding: 40px 20px;
-    font-size: 14px;
-  }
-  .empty-state .big { font-size: 48px; margin-bottom: 12px; }
-
-  .chip {
-    display: inline-block;
-    background: var(--surface2);
-    border-radius: 99px;
-    padding: 4px 12px;
-    font-size: 12px;
-    color: var(--text-dim);
-    margin-bottom: 16px;
-  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;padding:2rem 1rem 5rem}
+  header{text-align:center;margin-bottom:2.5rem}
+  header::before{content:'';display:block;width:60px;height:4px;background:linear-gradient(90deg,var(--accent),var(--accent2));margin:0 auto 1.2rem;border-radius:2px}
+  header h1{font-family:'Fraunces',serif;font-size:clamp(1.6rem,5vw,2.6rem);font-weight:700;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.4rem}
+  header p{color:var(--muted);font-size:.85rem;letter-spacing:.06em;text-transform:uppercase;font-family:'DM Mono',monospace}
+  .progress-bar-wrap{max-width:760px;margin:0 auto 2rem}
+  .progress-meta{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:.75rem;color:var(--muted);margin-bottom:.4rem}
+  .progress-track{height:6px;background:var(--border);border-radius:99px;overflow:hidden}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:99px;transition:width .4s ease;width:0%}
+  .quiz-container{max-width:760px;margin:0 auto}
+  .section-title{font-family:'Fraunces',serif;font-size:1.1rem;color:var(--accent);margin:2rem 0 1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border);letter-spacing:.03em}
+  .question-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:1.6rem;margin-bottom:1.2rem;transition:border-color .3s;position:relative;overflow:hidden}
+  .question-card::before{content:'';position:absolute;top:0;left:0;width:4px;height:100%;background:linear-gradient(180deg,var(--accent),var(--accent2));opacity:0;transition:opacity .3s}
+  .question-card.answered::before{opacity:1}
+  .question-card.answered{border-color:transparent}
+  .q-number{font-family:'DM Mono',monospace;font-size:.7rem;color:var(--accent);text-transform:uppercase;letter-spacing:.1em;margin-bottom:.6rem;display:block}
+  .q-text{font-size:.95rem;line-height:1.65;font-weight:600;margin-bottom:1.1rem;color:var(--text)}
+  .options{display:flex;flex-direction:column;gap:.5rem}
+  .option{display:flex;align-items:flex-start;gap:.7rem;padding:.65rem .9rem;border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:all .2s;background:var(--surface);text-align:left;font-size:.88rem;line-height:1.5;color:var(--text)}
+  .option:hover:not(:disabled){border-color:var(--accent);background:var(--highlight)}
+  .option .opt-letter{font-family:'DM Mono',monospace;font-size:.72rem;font-weight:500;color:var(--muted);min-width:16px;padding-top:2px;text-transform:uppercase}
+  .option.correct{border-color:var(--accent);background:rgba(61,214,140,.1);color:var(--accent)}
+  .option.correct .opt-letter{color:var(--accent)}
+  .option.wrong{border-color:var(--wrong);background:rgba(224,84,84,.08);color:var(--wrong)}
+  .option.wrong .opt-letter{color:var(--wrong)}
+  .option:disabled{cursor:default}
+  .feedback{margin-top:.8rem;padding:.65rem .9rem;border-radius:8px;font-size:.83rem;line-height:1.5;display:none}
+  .feedback.show{display:block}
+  .feedback.correct-fb{background:rgba(61,214,140,.1);color:var(--accent);border:1px solid rgba(61,214,140,.3)}
+  .feedback.wrong-fb{background:rgba(224,84,84,.08);color:#f87171;border:1px solid rgba(224,84,84,.3)}
+  .results-panel{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:2.5rem 2rem;text-align:center;max-width:760px;margin:2rem auto 0;display:none}
+  .results-panel.show{display:block}
+  .score-ring{width:120px;height:120px;margin:0 auto 1.5rem;position:relative}
+  .score-ring svg{transform:rotate(-90deg)}
+  .score-ring .ring-bg{fill:none;stroke:var(--border);stroke-width:8}
+  .score-ring .ring-fill{fill:none;stroke:url(#grad);stroke-width:8;stroke-linecap:round;stroke-dasharray:283;stroke-dashoffset:283;transition:stroke-dashoffset 1.2s ease}
+  .score-label{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Fraunces',serif;font-size:1.8rem;font-weight:700;color:var(--text)}
+  .results-panel h2{font-family:'Fraunces',serif;font-size:1.6rem;margin-bottom:.5rem;color:var(--text)}
+  .results-panel p{color:var(--muted);margin-bottom:1.5rem;font-size:.95rem}
+  .btn-reset{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#0e1117;border:none;padding:.7rem 2rem;border-radius:99px;font-family:'Nunito',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:opacity .2s,transform .2s}
+  .btn-reset:hover{opacity:.9;transform:translateY(-1px)}
+  .sticky-score{position:fixed;top:1rem;right:1rem;background:var(--card);border:1px solid var(--border);border-radius:99px;padding:.4rem 1rem;font-family:'DM Mono',monospace;font-size:.78rem;color:var(--muted);z-index:100;display:flex;gap:.5rem;align-items:center}
+  .sticky-score span{color:var(--accent);font-weight:500}
 </style>
 </head>
 <body>
-
-<!-- TOAST -->
-<div class="toast" id="toast"></div>
-
-<!-- SCREEN: PESSOAS -->
-<div class="screen active" id="screen-pessoas">
-  <div class="screen-header">
-    <h1>Vínculos</h1>
-    <p>Seu mapa emocional pessoal</p>
-  </div>
-
-  <div class="add-form">
-    <input type="text" id="input-pessoa" placeholder="Nome da pessoa..." maxlength="40">
-    <button class="btn-add" onclick="addPessoa()">+</button>
-  </div>
-
-  <div id="lista-pessoas">
-    <div class="empty-state" id="empty-pessoas">
-      <div class="big">🌱</div>
-      Adicione alguém para começar a mapear suas emoções.
-    </div>
-  </div>
+<div class="sticky-score">Acertos: <span id="live-score">0</span> / <span id="live-total">100</span></div>
+<header>
+  <h1>Algas, Protozoários e Fungos</h1>
+  <p>Questionário · Ensino Médio · 100 questões</p>
+</header>
+<div class="progress-bar-wrap">
+  <div class="progress-meta"><span>Progresso</span><span id="prog-label">0 de 100 respondidas</span></div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
 </div>
-
-<!-- SCREEN: DETALHE -->
-<div class="screen" id="screen-detail">
-  <button class="back-btn" onclick="showScreen('pessoas')">← Voltar</button>
-  <div class="detail-avatar" id="detail-avatar"></div>
-  <div class="detail-name" id="detail-name"></div>
-  <div class="today-label" id="detail-date"></div>
-
-  <div class="emotion-grid" id="emotion-grid"></div>
-
-  <button class="btn-save" onclick="saveEmotion()">💾 Salvar emoção de hoje</button>
-
-  <div class="section-title">Histórico</div>
-  <div class="calendar-list" id="calendar-list"></div>
-</div>
-
-<!-- SCREEN: STATS -->
-<div class="screen" id="screen-stats">
-  <div class="screen-header">
-    <h1>Análise</h1>
-    <p>Padrões emocionais ao longo do tempo</p>
+<div class="quiz-container" id="quiz"></div>
+<div class="results-panel" id="results">
+  <div class="score-ring">
+    <svg viewBox="0 0 100 100" width="120" height="120">
+      <defs><linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3dd68c"/><stop offset="100%" stop-color="#5b8dee"/></linearGradient></defs>
+      <circle class="ring-bg" cx="50" cy="50" r="45"/>
+      <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="45"/>
+    </svg>
+    <div class="score-label" id="score-pct">0%</div>
   </div>
-  <div id="stats-content"></div>
+  <h2 id="results-title">Parabéns!</h2>
+  <p id="results-msg"></p>
+  <button class="btn-reset" onclick="resetQuiz()">↺ Refazer Questionário</button>
 </div>
-
-<!-- NAV -->
-<nav>
-  <button class="active" id="nav-pessoas" onclick="showScreen('pessoas')">
-    <span class="icon">👥</span>
-    Pessoas
-  </button>
-  <button id="nav-stats" onclick="showScreen('stats')">
-    <span class="icon">📊</span>
-    Análise
-  </button>
-</nav>
 
 <script>
-const EMOTIONS = [
-  { emoji: '❤️',  name: 'Amor',        desc: 'Forte conexão, carinho real' },
-  { emoji: '😍',  name: 'Atração',     desc: 'Interesse, "gosto de você"' },
-  { emoji: '🤝',  name: 'Amizade',     desc: 'Confiança leve, parceria' },
-  { emoji: '😐',  name: 'Indiferença', desc: 'Não liga, tanto faz' },
-  { emoji: '😬',  name: 'Ansiedade',   desc: 'Nervoso perto da pessoa' },
-  { emoji: '😞',  name: 'Decepção',    desc: 'Esperava mais dela' },
-  { emoji: '😤',  name: 'Frustração',  desc: 'A pessoa irrita ou atrapalha' },
-  { emoji: '😡',  name: 'Raiva',       desc: 'Já passou do limite' },
-  { emoji: '😒',  name: 'Desprezo',    desc: 'Acha inferior ou insuportável' },
-  { emoji: '😨',  name: 'Medo',        desc: 'Evita, se sente desconfortável' },
+const SECTIONS = [
+  { title: "Algas — Características Gerais e Diversidade", range: [0, 14] },
+  { title: "Grupos de Algas", range: [15, 34] },
+  { title: "Reprodução e Importância das Algas", range: [35, 44] },
+  { title: "Protozoários — Características Gerais e Grupos", range: [45, 59] },
+  { title: "Doenças Causadas por Protozoários", range: [60, 74] },
+  { title: "Fungos — Características Gerais e Grupos", range: [75, 87] },
+  { title: "Reprodução, Líquens, Micorrizas e Importância dos Fungos", range: [88, 99] }
 ];
 
-let pessoas = JSON.parse(localStorage.getItem('vinculos_pessoas') || '[]');
-let emocoes = JSON.parse(localStorage.getItem('vinculos_emocoes') || '{}');
-let currentPessoaId = null;
-let selectedEmotion = null;
+const questions = [
+  // ── ALGAS – CARACTERÍSTICAS GERAIS E DIVERSIDADE (0-14) ──
+  {q:"Qual das alternativas apresenta corretamente as características gerais das algas?",opts:["São procarióticas, heterotróficas e sempre unicelulares.","São eucarióticas, fotossintetizantes, podendo ser uni ou multicelulares.","São procarióticas, fotossintetizantes e exclusivamente marinhas.","São eucarióticas, heterotróficas e possuem parede celular de quitina.","São sempre multicelulares e dependem do organismo materno para nutrir seus embriões."],ans:1,fb:"As algas são eucarióticas (possuem núcleo organizado), fotossintetizantes e podem ser uni ou multicelulares. Diferentemente das plantas, seus embriões não dependem do organismo materno para se nutrir."},
+  {q:"Por que as algas multicelulares são consideradas diferentes das plantas, mesmo sendo semelhantes a elas em alguns aspectos?",opts:["Porque as algas não realizam fotossíntese.","Porque as algas são procarióticas.","Porque os embriões das algas não dependem do organismo materno para se nutrir.","Porque as algas não possuem cloroplastos.","Porque as algas não possuem parede celular."],ans:2,fb:"Embora as algas multicelulares sejam semelhantes às plantas em alguns aspectos, uma diferença fundamental é que seus embriões não dependem do organismo materno para se nutrir, ao contrário do que ocorre nas plantas."},
+  {q:"Onde vivem as algas unicelulares?",opts:["Exclusivamente no fundo dos oceanos.","No mar, em água doce e em superfícies úmidas.","Apenas no interior de outros organismos como parasitas.","Somente em ambientes de água doce com alta luminosidade.","Exclusivamente em ambientes marinhos de águas quentes."],ans:1,fb:"As algas unicelulares vivem no mar, em água doce e em superfícies úmidas. São organismos muito versáteis em termos de habitat."},
+  {q:"Qual é a principal importância ecológica das algas para os ecossistemas aquáticos?",opts:["Decomposição da matéria orgânica.","Parasitismo de outros organismos aquáticos.","Produção de O₂ e substâncias orgânicas via fotossíntese.","Fixação de nitrogênio atmosférico.","Formação de rochas sedimentares no fundo dos oceanos."],ans:2,fb:"As algas produzem O₂ e substâncias orgânicas por meio da fotossíntese, sendo fundamentais como produtores primários nos ecossistemas aquáticos."},
+  {q:"A parede celular das algas é composta por celulose associada a outras substâncias. Quais são alguns exemplos dessas outras substâncias?",opts:["Quitina, proteínas e lipídios.","Ágar, carragenina e carbonato de cálcio.","Glicogênio, amido e pectina.","Lignina, suberina e cutina.","Alginato, cera e resinas."],ans:1,fb:"Além de celulose, as paredes celulares das algas podem conter ágar, carragenina, carbonato de cálcio (CaCO₃), entre outras substâncias, dependendo da espécie."},
+  {q:"Quantas espécies de algas são estimadas atualmente?",opts:["Entre 1.000 e 5.000 espécies.","Entre 10.000 e 15.000 espécies.","Entre 27.000 e 36.000 espécies.","Entre 100.000 e 150.000 espécies.","Entre 500.000 e 1.000.000 de espécies."],ans:2,fb:"Estima-se que o número atual de espécies de algas esteja entre 27 e 36 mil, das quais quase um terço vive em ambientes marinhos."},
+  {q:"Como é chamado o 'corpo' das algas nas espécies multicelulares?",opts:["Micélio","Talo","Rizoma","Caule","Talo-raiz"],ans:1,fb:"Nas espécies multicelulares de algas, o corpo da alga é chamado talo. Esse termo é usado para diferenciar a estrutura corporal das algas da estrutura de plantas vasculares."},
+  {q:"Quais critérios são utilizados na classificação das algas?",opts:["Apenas tamanho e cor visível a olho nu.","Organização celular, tipos de pigmentos, substâncias de reserva, componentes da parede celular e reprodução.","Exclusivamente o habitat onde vivem.","Somente o tipo de reprodução (sexuada ou assexuada).","Apenas a composição química da parede celular."],ans:1,fb:"A classificação das algas utiliza vários critérios: organização celular, tipos de clorofila e outros pigmentos, substâncias de reserva, componentes da parede celular e modo de reprodução."},
+  {q:"As algas microscópicas são mais abundantes em qual parte dos oceanos e lagos?",opts:["Nas camadas mais profundas, próximas ao fundo.","Nas camadas intermediárias, sem luz solar.","Nas camadas mais superficiais, onde há luz solar.","Nas regiões próximas ao litoral, nos recifes de coral.","Exclusivamente nas regiões polares."],ans:2,fb:"As algas microscópicas são abundantes nas camadas mais superficiais dos mares e dos grandes lagos, pois necessitam de luz solar para realizar a fotossíntese."},
+  {q:"O plâncton é formado por quais tipos de organismos?",opts:["Exclusivamente por algas microscópicas.","Apenas por bactérias e protozoários.","Por algas microscópicas, bactérias, protozoários, larvas de animais, microcrustáceos, entre outros.","Somente por larvas de animais marinhos e microcrustáceos.","Apenas por organismos procarióticos."],ans:2,fb:"O plâncton é formado por algas microscópicas juntamente com bactérias, protozoários, larvas de diversos animais, microcrustáceos e outros organismos. É a base das cadeias alimentares aquáticas."},
+  {q:"Quais das afirmações sobre os cloroplastos das algas está CORRETA?",opts:["Todas as algas possuem exatamente um cloroplasto por célula.","As células podem conter um ou vários cloroplastos, dependendo da espécie.","Nenhuma alga possui cloroplasto, pois são heterotróficas.","Os cloroplastos das algas são idênticos aos das plantas em todas as espécies.","Apenas as algas multicelulares possuem cloroplastos."],ans:1,fb:"Dependendo da espécie de alga, as células podem conter um ou vários cloroplastos. Essa diversidade é uma das características marcantes do grupo."},
+  {q:"Por que algumas algas 'deveriam constituir reinos distintos', segundo o conteúdo estudado?",opts:["Porque todas são procarióticas.","Porque algumas têm características tão próprias e únicas que as diferenciam dos demais grupos.","Porque todas são parasitas de outros organismos.","Porque não realizam fotossíntese.","Porque vivem exclusivamente em ambientes extremos."],ans:1,fb:"As algas são muito diversificadas e algumas espécies possuem características tão próprias e únicas que, segundo alguns critérios científicos, deveriam constituir reinos distintos."},
+  {q:"As algas estão distribuídas em quantos filos aproximadamente?",opts:["Em apenas 2 filos.","Em 3 filos principais.","Em mais de uma dezena de filos.","Em exatamente 7 filos.","Em apenas 1 filo."],ans:2,fb:"As algas são distribuídas em mais de uma dezena de filos, o que reflete a enorme diversidade desse grupo de organismos."},
+  {q:"Qual porcentagem das espécies de algas vive em ambientes marinhos?",opts:["Quase metade (1/2) das espécies.","Quase um terço (1/3) das espécies.","Menos de 10% das espécies.","Mais de 90% das espécies.","Exatamente metade das espécies."],ans:1,fb:"Quase 1/3 (um terço) das espécies de algas vive em ambientes marinhos. As demais vivem em água doce ou em superfícies úmidas terrestres."},
+  {q:"Qual é a característica fundamental que permite classificar as algas como eucarióticas?",opts:["Presença de parede celular.","Realização de fotossíntese com produção de O₂.","Possuir material genético envolto por membrana nuclear (núcleo definido).","Ser multicelular com tecidos diferenciados.","Possuir cloroplastos com clorofila."],ans:2,fb:"A característica fundamental dos organismos eucarióticos, incluindo as algas, é a presença de material genético envolto por membrana nuclear, formando um núcleo definido. Isso os diferencia dos procarióticos como as bactérias."},
 
-function save() {
-  localStorage.setItem('vinculos_pessoas', JSON.stringify(pessoas));
-  localStorage.setItem('vinculos_emocoes', JSON.stringify(emocoes));
-}
+  // ── GRUPOS DE ALGAS (15-34) ──
+  {q:"As Clorófitas (algas verdes) pertencem a qual filo?",opts:["Filo Bacillariophyta","Filo Chrysophyta","Filo Chlorophyta","Filo Rhodophyta","Filo Phaeophyta"],ans:2,fb:"As Clorófitas ou algas verdes pertencem ao Filo Chlorophyta. Vivem no mar, em água doce ou em superfícies úmidas e apresentam espécies unicelulares e multicelulares."},
+  {q:"De qual grupo de algas as plantas terrestres provavelmente se originaram?",opts:["Das algas vermelhas marinhas.","Das algas pardas multicelulares.","Das algas verdes de água doce, há cerca de 450 milhões de anos.","Das diatomáceas marinhas.","Dos dinoflagelados unicelulares."],ans:2,fb:"Evidências científicas sugerem que as plantas tenham surgido a partir de algas verdes (Clorófitas) de água doce, há cerca de 450 milhões de anos."},
+  {q:"Algumas espécies de algas verdes vivem associadas a fungos formando:",opts:["Micorrizas","Líquens","Biofilmes","Simbioses parasitárias","Endofitas"],ans:1,fb:"Algumas espécies de Clorófitas (algas verdes) vivem associadas a fungos, constituindo líquens. Essa é uma associação mutualística em que ambos os organismos se beneficiam."},
+  {q:"Qual é o número aproximado de espécies de diatomáceas?",opts:["Menos de 100 espécies.","Cerca de 500 espécies.","Mais de 10 mil espécies.","Cerca de 1.000 espécies.","Mais de 100 mil espécies."],ans:2,fb:"As diatomáceas apresentam mais de 10 mil espécies. São algas unicelulares ou coloniais pertencentes ao Filo Bacillariophyta."},
+  {q:"Qual é o tamanho das diatomáceas?",opts:["De 1 a 5 µm de comprimento.","De 20 a 200 µm de comprimento.","De 1 a 10 mm de comprimento.","De 1 a 50 cm de comprimento.","De 5 a 15 µm de comprimento."],ans:1,fb:"As diatomáceas medem de 20 a 200 µm de comprimento. São algas unicelulares ou coloniais microscópicas."},
+  {q:"Qual substância forma a carapaça das diatomáceas?",opts:["Carbonato de cálcio (CaCO₃)","Quitina","Celulose pura","Dióxido de silício (SiO₂)","Sulfato de estrôncio (SrSO₄)"],ans:3,fb:"As células das diatomáceas são revestidas por uma carapaça de dióxido de silício (SiO₂), que lhes confere um aspecto brilhante e iridescente (furta-cor)."},
+  {q:"Como são chamadas as rochas formadas pelo acúmulo de carapaças de diatomáceas ao longo de milhões de anos?",opts:["Vasas calcárias","Diatomitos ou Terras de diatomáceas","Travertinos","Estromatólitos","Silex silicoso"],ans:1,fb:"As carapaças de diatomáceas acumularam-se ao longo de milhões de anos, formando camadas rochosas chamadas Terras de diatomáceas ou diatomitos, utilizadas como material de construção na Antiguidade."},
+  {q:"Para que os diatomitos são utilizados atualmente na indústria?",opts:["Exclusivamente como combustível fóssil.","Como matéria-prima na fabricação de polidores e filtros.","Apenas para construção civil.","Na produção de plásticos biodegradáveis.","Como adubo em plantações."],ans:1,fb:"Atualmente, os diatomitos são utilizados como matéria-prima para fabricação de polidores e filtros. Antigamente, foram usados também como material de construção."},
+  {q:"Qual porcentagem da produtividade primária dos ecossistemas marinhos é atribuída às diatomáceas?",opts:["Cerca de 5%","Cerca de 10%","Cerca de 25%","Cerca de 50%","Cerca de 75%"],ans:2,fb:"Cerca de 25% da produtividade primária dos ecossistemas marinhos é atribuída às diatomáceas, o que demonstra sua enorme importância ecológica."},
+  {q:"Qual é a característica principal que diferencia as Crisófitas (algas douradas) das demais algas?",opts:["São todas multicelulares e marinhas.","São unicelulares ou coloniais, algumas sem parede celular, e muitas ingerem bactérias apesar de fotossintetizantes.","São exclusivamente parasitas de outros organismos.","Possuem carapaça de carbonato de cálcio.","São responsáveis pela bioluminescência marinha."],ans:1,fb:"As Crisófitas são algas unicelulares ou coloniais, com algumas espécies filamentosas. Algumas não têm parede celular e, apesar de fotossintetizantes, muitas ingerem bactérias e outras partículas orgânicas."},
+  {q:"As Feófitas (algas pardas) são encontradas principalmente em qual ambiente?",opts:["Exclusivamente em água doce.","São quase todas multicelulares e marinhas.","Vivem apenas em solos úmidos e troncos de árvores.","São exclusivamente unicelulares e de água doce.","Habitam apenas os fundos oceânicos profundos."],ans:1,fb:"As Feófitas são quase todas multicelulares e marinhas. Seu tamanho varia de poucos centímetros a mais de 40 metros."},
+  {q:"Qual é o tamanho máximo que algumas Feófitas (algas pardas) podem atingir?",opts:["Até 10 centímetros.","Até 1 metro.","Mais de 40 metros.","Até 5 metros.","Exatamente 20 metros."],ans:2,fb:"O tamanho das Feófitas varia de poucos centímetros a mais de 40 metros, tornando-as as maiores algas conhecidas."},
+  {q:"O 'Mar de Sargaços' foi batizado pelos antigos navegadores portugueses. A qual grupo de algas pertencem as algas que deram nome a esse mar?",opts:["Rodófitas","Clorófitas","Diatomáceas","Feófitas (gênero Sargassum)","Euglenoides"],ans:3,fb:"O Mar de Sargaços foi batizado pelos navegadores portugueses por ser abundante em algas pardas (Feófitas) do gênero Sargassum, que são abundantes no Oceano Atlântico, perto do arquipélago de Açores."},
+  {q:"As Rodófitas são chamadas de algas vermelhas. Qual é a característica das 'algas coralíneas'?",opts:["Produzem bioluminescência vermelha.","Acumulam carbonato de cálcio nas paredes celulares, adquirindo rigidez semelhante ao coral.","São todas unicelulares e parasitas de corais.","Formam associações simbióticas com corais criando recifes.","Produzem toxinas que matam os corais."],ans:1,fb:"Certas espécies de Rodófitas acumulam carbonato de cálcio (CaCO₃) em suas paredes celulares, adquirindo uma rigidez semelhante à de corais. Por isso são chamadas algas coralíneas."},
+  {q:"Os dinoflagelados possuem quantos flagelos?",opts:["Um flagelo","Dois flagelos","Três flagelos","Nenhum flagelo — locomovem-se por pseudópodes","Quatro flagelos"],ans:1,fb:"A célula do dinoflagelado é dotada de dois flagelos que permitem sua locomoção. A maioria das espécies é marinha e unicelular."},
+  {q:"O que são as 'zooxantelas' no contexto dos dinoflagelados?",opts:["Esporos de resistência formados em condições adversas.","Pigmentos responsáveis pela cor vermelha das marés.","Dinoflagelados sem parede celular que vivem em simbiose dentro de células de outros organismos marinhos.","Toxinas liberadas durante a maré vermelha.","Estruturas locomotoras dos dinoflagelados."],ans:2,fb:"Zooxantelas são dinoflagelados sem parede celular que vivem em simbiose dentro de células de protozoários e outros animais marinhos, como corais. Eles realizam fotossíntese e fornecem nutrientes ao hospedeiro."},
+  {q:"O que os dinoflagelados fazem em condições adversas, como escassez de nutrientes?",opts:["Aumentam sua reprodução para compensar.","Passam a ser heterotróficos permanentemente.","Perdem os flagelos e formam cistos de resistência.","Migram para ambientes mais profundos.","Associam-se a bactérias para sobreviver."],ans:2,fb:"Em condições adversas, como escassez de nutrientes, muitos dinoflagelados podem perder os flagelos e formar cistos de resistência, aguardando condições favoráveis para retomar o crescimento."},
+  {q:"Qual fenômeno luminoso do mar é causado por dinoflagelados do gênero Noctiluca?",opts:["Maré vermelha","Bioluminescência (luz azul-esverdeada)","Florescimento de algas azuis","Marés de espuma","Manchas iridescentes superficiais"],ans:1,fb:"Dinoflagelados do gênero Noctiluca são responsáveis pelo fenômeno de bioluminescência do mar, que produz uma luz azul-esverdeada, especialmente visível à noite."},
+  {q:"Quais os efeitos da maré vermelha causada pelos dinoflagelados?",opts:["Aumenta a produtividade dos ecossistemas marinhos.","Causa a morte de peixes e outros animais marinhos e pode intoxicar humanos.","Produz oxigênio em excesso prejudicando os corais.","Torna a água do mar mais salina.","Estimula o crescimento de plantas aquáticas."],ans:1,fb:"As substâncias tóxicas liberadas durante a maré vermelha causam a morte de peixes e outros animais marinhos e podem intoxicar a espécie humana, tornando o consumo de frutos do mar perigoso."},
+  {q:"Os Euglenoides de água doce possuem vacúolo contrátil. Qual é a função dessa estrutura?",opts:["Armazenar alimentos para períodos de escassez.","Eliminar o excesso de água que entra por osmose.","Realizar a fotossíntese.","Servir como estrutura locomotora.","Proteger contra predadores."],ans:1,fb:"O vacúolo contrátil (ou pulsátil) dos Euglenoides de água doce tem a função de eliminar o excesso de água que entra na célula por osmose, regulando a pressão osmótica."},
 
-function today() {
-  return new Date().toISOString().slice(0,10);
-}
+  // ── REPRODUÇÃO E IMPORTÂNCIA DAS ALGAS (35-44) ──
+  {q:"Por quais métodos as algas unicelulares se reproduzem assexuadamente?",opts:["Apenas por divisão binária.","Por divisão binária, fragmentação e esporulação.","Por conjugação e fusão de gametas.","Apenas por esporulação.","Por brotamento e partenogênese."],ans:1,fb:"As algas unicelulares se reproduzem assexuadamente por divisão binária, fragmentação e esporulação. Cada método gera novos indivíduos sem a participação de gametas."},
+  {q:"Na reprodução sexuada da alga verde Chlamydomonas sp., o que acontece após a fusão de dois indivíduos?",opts:["Formam diretamente quatro indivíduos haploides sem passar pela fase diploide.","Formam um zigoto diploide que, por meiose, gera 4 células haploides.","Geram um novo organismo diploide que cresce indefinidamente.","Formam esporos assexuados que germinam em condições favoráveis.","Produzem cistos de resistência."],ans:1,fb:"Na reprodução sexuada de Chlamydomonas sp., cada organismo se comporta como gameta. Dois indivíduos se fundem e originam um zigoto diploide, que por meiose zigótica gera 4 células haploides."},
+  {q:"O que é 'alternância de gerações' no ciclo de vida de algas como Ulva lactuca?",opts:["A troca de habitat entre estações do ano.","A alternância entre fases de reprodução assexuada e sexuada ao longo do ciclo de vida.","A mudança de cor das algas dependendo da estação.","O processo de divisão binária repetida.","A troca de simbiontes ao longo da vida."],ans:1,fb:"No ciclo de vida de muitas algas unicelulares e de algumas multicelulares como Ulva lactuca (alface-do-mar), ocorre alternância de gerações, com alternância entre fases diploides e haploides."},
+  {q:"A alga Saccharina japonica é conhecida na culinária japonesa como:",opts:["Nori","Wakame","Kombu","Agar","Spirulina"],ans:2,fb:"A alga parda Saccharina japonica é uma espécie marinha comestível conhecida na culinária japonesa como Kombu, usada em sopas e caldos."},
+  {q:"A alga marinha vermelha Porphyra sp. é usada na culinária japonesa. Como é chamada?",opts:["Kombu","Wakame","Hijiki","Nori","Furikake"],ans:3,fb:"A alga marinha vermelha Porphyra sp. é chamada de nori pelos japoneses. É amplamente usada para envolver sushis e oniguiris."},
+  {q:"De qual tipo de alga é extraído o ágar?",opts:["Das algas pardas (Feófitas).","Das algas douradas (Crisófitas).","Das algas vermelhas (Rodófitas).","Das algas verdes (Clorófitas).","Das diatomáceas."],ans:2,fb:"O ágar é extraído das algas vermelhas (Rodófitas). É amplamente utilizado como meio de cultura em laboratório (em placas de Petri para cultivo de bactérias) e na indústria alimentícia."},
+  {q:"Qual substância presente nas algas pardas é utilizada pelas indústrias farmacêutica, têxtil e de cosméticos?",opts:["Carragenina","Ágar","Alginato","Carbonato de cálcio","Dióxido de silício"],ans:2,fb:"As algas pardas apresentam em suas paredes o alginato, substância empregada pelas indústrias farmacêuticas, têxteis e de cosméticos, além de ser usado na fabricação de sorvetes, achocolatados e outros produtos."},
+  {q:"As carrageninas, extraídas de algas, são amplamente utilizadas na indústria alimentícia com qual função?",opts:["Como corante natural.","Como conservante químico.","Como estabilizantes e clarificantes.","Como adoçante natural.","Como agente fermentador."],ans:2,fb:"As carrageninas são amplamente utilizadas como estabilizantes e clarificantes na indústria alimentícia. São extraídas de algas vermelhas."},
+  {q:"Em quais produtos industriais as algas são utilizadas além dos alimentos?",opts:["Apenas em alimentos e cosméticos.","Somente em produtos farmacêuticos.","Em sorvetes, achocolatados, cerveja, creme dental, entre outros.","Apenas como fertilizantes agrícolas.","Somente na fabricação de plásticos."],ans:2,fb:"As algas são utilizadas na fabricação de sorvetes, achocolatados, cerveja, creme dental, além de produtos cosméticos e farmacêuticos, demonstrando sua ampla importância econômica."},
+  {q:"Qual grupo de algas tem cloroplastos e pode apresentar um ocelo?",opts:["Diatomáceas","Feófitas","Euglenoides","Rodófitas","Crisófitas"],ans:2,fb:"Os Euglenoides (Filo Euglenophyta) são unicelulares, de água doce, com dois flagelos. Certas espécies apresentam um ocelo (mancha ocular) e muitos possuem pigmentos fotossintetizantes."},
 
-function formatDate(str) {
-  const [y,m,d] = str.split('-');
-  return `${d}/${m}/${y}`;
-}
+  // ── PROTOZOÁRIOS – CARACTERÍSTICAS GERAIS E GRUPOS (45-59) ──
+  {q:"O nome 'protozoário' vem do grego. O que significa?",opts:["Primeiro vegetal","Primeiro animal","Primeiro fungo","Primeiro ser vivo","Primeiro procarioto"],ans:1,fb:"O nome protozoário vem do grego protos (primeiro) e zoon (animal), refletindo a ideia antiga de que seriam os primeiros animais."},
+  {q:"Qual é a principal característica nutricional dos protozoários?",opts:["São autotróficos e realizam fotossíntese.","São heterotróficos.","São quimioautotróficos.","São saprófitas exclusivamente.","Alguns são autotróficos e outros heterotróficos."],ans:1,fb:"Os protozoários são organismos unicelulares e heterotróficos. Alimentam-se da matéria orgânica de cadáveres (hábito saprofágico) ou de microrganismos vivos."},
+  {q:"Qual estrutura especializada em fagocitose alguns protozoários apresentam?",opts:["Vacúolo contrátil","Citoprocto","Citóstoma","Macronúcleo","Axópode"],ans:2,fb:"Certos protozoários apresentam o citóstoma, uma região especializada na fagocitose (ingestão de partículas sólidas). O citoprocto é a estrutura responsável pela eliminação dos restos da digestão."},
+  {q:"Para que servem os vacúolos contráteis nas espécies de protozoários de água doce?",opts:["Armazenar alimentos para períodos de escassez.","Eliminar o excesso de água que entra por osmose.","Realizar a digestão de alimentos ingeridos.","Servir como estrutura de locomoção.","Proteger contra toxinas ambientais."],ans:1,fb:"As espécies de protozoários de água doce apresentam vacúolos contráteis bem desenvolvidos, cuja função é eliminar o excesso de água que entra na célula por osmose, regulando a pressão osmótica."},
+  {q:"Como os Rizópodes (Filo Rhizopoda ou Sarcodina) se locomovem?",opts:["Por cílios","Por flagelos","Por pseudópodes","Por axópodes","Por contrações musculares"],ans:2,fb:"Os Rizópodes, como as amebas, se locomovem por meio de pseudópodes — projeções citoplasmáticas temporárias que também são usadas na captura de alimentos por fagocitose."},
+  {q:"O que são os axópodes nos Actinópodes?",opts:["Flagelos especializados na locomoção rápida.","Pseudópodes filamentosos sustentados por um eixo central que se projetam como raios.","Cílios agrupados em feixes para locomoção.","Estruturas de secreção de toxinas.","Organelas digestivas especializadas."],ans:1,fb:"Os Actinópodes são dotados de pseudópodes filamentosos chamados axópodes, sustentados por um eixo central e que se projetam como raios. São usados na captura de alimentos."},
+  {q:"Onde vivem exclusivamente os Radiolários?",opts:["Apenas em água doce.","Exclusivamente no mar.","Em solos úmidos e terrestres.","No interior de outros animais como parasitas.","Em regiões polares de gelo."],ans:1,fb:"Os Radiolários vivem exclusivamente no mar. Apresentam uma cápsula interna esférica e perfurada de quitina ligada a um microesqueleto formado por espículas de sílica (SrSO₄)."},
+  {q:"O que são as 'zooxantelas' que muitos radiolários abrigam em seu citoplasma?",opts:["Bactérias simbióticas que fixam nitrogênio.","Crisófitas e diatomáceas que vivem em simbiose.","Esporos de resistência dos próprios radiolários.","Fungos microscópicos que auxiliam a digestão.","Vírus latentes integrados ao material genético."],ans:1,fb:"Muitos radiolários abrigam em seu citoplasma zooxantelas, que são algas (crisófitas e diatomáceas) que vivem em simbiose. As algas realizam fotossíntese e fornecem nutrientes ao radiolário."},
+  {q:"Onde vivem principalmente os Heliozoários?",opts:["Exclusivamente no mar.","Em sua maioria na água doce.","Apenas em solos áridos.","No interior de animais vertebrados.","Em regiões hidrotermais."],ans:1,fb:"Os Heliozoários vivem em sua maioria na água doce. Têm forma esférica e capturam alimentos pela fagocitose realizada por seus axópodes."},
+  {q:"Com qual material histórico as grandes pirâmides do Egito foram construídas?",opts:["Granito e basalto vulcânico.","Diatomitos de carapaças de diatomáceas.","Vasas originadas de microcarapaças de foraminíferos do gênero Nummulites.","Carbonato de cálcio de algas coralíneas.","Quartzito de origem sedimentar."],ans:2,fb:"As grandes pirâmides do Egito foram construídas com vasas — rochas sedimentares originadas das microcarapaças de foraminíferos do gênero Nummulites, hoje extintos."},
+  {q:"Os Apicomplexos (Filo Apicomplexa) são endoparasitas. Como eles entram na célula hospedeira?",opts:["Por fusão de membranas celulares.","Através do complexo apical.","Por endocitose mediada por receptor.","Através de picadas de insetos vetores.","Por injeção ativa de material genético."],ans:1,fb:"Os Apicomplexos são endoparasitas destituídos de estruturas locomotoras. Eles penetram na célula hospedeira através do complexo apical, um conjunto de organelas especializadas."},
+  {q:"Qual é a origem do nome 'Sporozoa', grupo que inclui os Apicomplexos?",opts:["Referência ao habitat aquático (esporádico) desses organismos.","Referência ao fato de muitos representantes formarem esporos em algum estágio do ciclo de vida.","Referência à cor esverdeada dos esporos.","Referência à velocidade de reprodução.","Referência ao tamanho diminuto dos esporos."],ans:1,fb:"O nome Sporozoa refere-se ao fato de muitos representantes do grupo formarem esporos em algum estágio do seu ciclo de vida. Esses esporos são formas de resistência ou de transmissão."},
+  {q:"Quais doenças são causadas por Apicomplexos?",opts:["Amebíase, doença de Chagas e leishmaniose.","Malária (Plasmodium), toxoplasmose (Toxoplasma gondii) e pneumonia (Pneumocystis carinii).","Giardia, trichomoníase e balantidiose.","Cólera, tifo e febre amarela.","Leishmaniose e doença do sono."],ans:1,fb:"Os Apicomplexos causam diversas doenças: malária (causada por Plasmodium), toxoplasmose (causada por Toxoplasma gondii) e pneumonia em imunocomprometidos (Pneumocystis carinii)."},
+  {q:"Os Flagelados (Filo Zoomastigophora) usam quais estruturas para se locomover?",opts:["Pseudópodes","Cílios","Flagelos","Axópodes","Contrações do corpo"],ans:2,fb:"Os Flagelados apresentam flagelos como estruturas locomotoras. Vivem em meio aquático (no mar ou em água doce) e algumas espécies são parasitas que causam doenças."},
+  {q:"Nos Ciliados (Filo Ciliophora), qual é a função do macronúcleo?",opts:["Atuar na reprodução sexuada.","Originar núcleos haploides por meiose.","Controlar as atividades celulares cotidianas.","Coordenar o movimento dos cílios.","Armazenar substâncias de reserva."],ans:2,fb:"Nos ciliados, o macronúcleo é responsável pelo controle das atividades celulares cotidianas. O micronúcleo, por sua vez, atua na reprodução sexuada e origina núcleos haploides por meiose."},
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2200);
-}
+  // ── DOENÇAS CAUSADAS POR PROTOZOÁRIOS (60-74) ──
+  {q:"Qual é o agente causador da amebíase (disenteria amebiana)?",opts:["Giardia lamblia","Trypanosoma cruzi","Entamoeba histolytica","Plasmodium vivax","Leishmania chagasi"],ans:2,fb:"A amebíase é causada pela Entamoeba histolytica. A transmissão ocorre pela ingestão de alimentos ou água contaminados com cistos da ameba, ou pelo contato direto de mãos contaminadas."},
+  {q:"Quais são os principais sintomas da amebíase?",opts:["Febre alta e manchas vermelhas na pele.","Diarreia, dor de estômago e possíveis lesões no fígado e outros órgãos.","Inchaço dos gânglios linfáticos e febre intermitente.","Lesões ulcerosas na pele e destruição de mucosas.","Calafrios, suor noturno e anemia severa."],ans:1,fb:"Os sintomas da amebíase incluem diarreia e dor de estômago. Em casos mais graves, a Entamoeba histolytica pode causar lesões no fígado e em outros órgãos."},
+  {q:"No Brasil, aproximadamente quantas pessoas por ano adquirem algum tipo de leishmaniose?",opts:["Cerca de 1.000 pessoas.","Cerca de 10.000 pessoas.","Cerca de 40.000 pessoas.","Cerca de 100.000 pessoas.","Cerca de 500.000 pessoas."],ans:2,fb:"No Brasil, cerca de 40 mil pessoas por ano adquirem um dos tipos de leishmaniose. É uma doença negligenciada que representa um sério problema de saúde pública."},
+  {q:"Qual é o agente causador da leishmaniose visceral (calazar) e quais órgãos ela ataca?",opts:["Leishmania braziliensis; ataca a pele e mucosas.","Leishmania chagasi; ataca o baço e o fígado.","Trypanosoma cruzi; ataca o coração e o fígado.","Plasmodium falciparum; ataca os glóbulos vermelhos e o fígado.","Entamoeba histolytica; ataca o intestino grosso."],ans:1,fb:"A leishmaniose visceral (calazar) é causada por Leishmania chagasi e ataca o baço e o fígado. Os sintomas incluem febre contínua, perda de apetite, inchaço dos órgãos e anemia."},
+  {q:"Qual vetor transmite a leishmaniose visceral?",opts:["Percevejo triatomíneo (barbeiro).","Mosquito Anopheles.","Mosquito Lutzomyia braziliensis (mosquito-palha).","Carrapato do gênero Ixodes.","Mosca do gênero Glossina."],ans:2,fb:"A leishmaniose visceral é transmitida pela picada do mosquito Lutzomyia braziliensis, popularmente conhecido como mosquito-palha, birigui ou maruim."},
+  {q:"A leishmaniose tegumentar (úlcera de Bauru) é causada por qual agente e quais são seus sintomas na pele?",opts:["Leishmania chagasi; causa inchaço do fígado e anemia.","Leishmania braziliensis; causa feridas ulcerosas com bordas elevadas e fundo granuloso.","Trypanosoma cruzi; causa lesões no coração.","Plasmodium vivax; causa febre e calafrios.","Entamoeba histolytica; causa diarreia e lesões no fígado."],ans:1,fb:"A leishmaniose tegumentar (úlcera de Bauru) é causada por Leishmania braziliensis. Na pele, forma feridas ulcerosas com bordas elevadas e fundo granuloso. Nas mucosas, pode destruir tecidos e perfurar o septo nasal."},
+  {q:"Quais são as medidas de prevenção da leishmaniose?",opts:["Vacinação, uso de antibióticos preventivos e fervura da água.","Tratamento dos doentes, combate aos mosquitos, uso de inseticidas, telas e construção de casas a mais de 100m das matas.","Isolamento dos doentes e quarentena obrigatória.","Apenas uso de repelentes corporais.","Evitar o contato com animais domésticos."],ans:1,fb:"A prevenção da leishmaniose inclui: tratamento dos doentes, combate aos mosquitos (aterro de lagoas), uso de inseticidas, uso de telas ou cortinados, e construção de casas a mais de 100 metros das matas."},
+  {q:"A doença de Chagas recebeu esse nome em homenagem a qual cientista brasileiro?",opts:["Oswaldo Cruz, descobridor do ciclo da doença.","Carlos Chagas, descobridor do ciclo da doença em 1909.","Carlos Chagas, que desenvolveu o primeiro tratamento.","Vital Brazil, que identificou o vetor da doença.","Adolfo Lutz, primeiro a descrever o protozoário."],ans:1,fb:"A doença de Chagas foi assim chamada em referência ao cientista brasileiro Carlos Chagas, descobridor do ciclo dessa doença em 1909. O nome do protozoário, Trypanosoma cruzi, é uma homenagem a Oswaldo Cruz."},
+  {q:"Qual é o vetor da doença de Chagas e quais são seus nomes populares?",opts:["Mosquito Anopheles, chamado de mosquito-prego.","Mosquito Lutzomyia braziliensis, chamado de mosquito-palha.","Percevejo triatomíneo, chamado de barbeiro, chupança ou bicho-de-parede.","Carrapato-estrela, chamado de carrapato-do-boi.","Mosca tsé-tsé, chamada de mosca-do-sono."],ans:2,fb:"A doença de Chagas é transmitida por percevejos triatomíneos (Triatoma infestans, Panstrongylus megistus), popularmente conhecidos como barbeiros, chupanças, procotós ou bichos-de-parede."},
+  {q:"Como o Trypanosoma cruzi penetra no organismo humano após a picada do barbeiro?",opts:["É injetado diretamente pela saliva do inseto na picada.","Sai pelas fezes do inseto e penetra pelo orifício da picada quando a pessoa se coça.","É transmitido pelo ar quando o inseto respira próximo ao humano.","Penetra através da pele intacta sem necessidade de arranhões.","É transmitido pelo contato com os ovos do inseto."],ans:1,fb:"O protozoário sai pelas fezes do barbeiro e penetra pelo orifício deixado pela picada ou pela ferida feita quando a pessoa se coça. Inicialmente aloja-se na pele, perde o flagelo e se reproduz por divisão binária."},
+  {q:"Por que a doença de Chagas pode ser fatal?",opts:["Porque causa insuficiência renal aguda.","Porque o doente pode morrer por insuficiência cardíaca, já que o protozoário provoca lesões irreversíveis no coração.","Porque destrói todos os glóbulos vermelhos em poucos dias.","Porque o barbeiro injeta um veneno letal ao mesmo tempo em que transmite o protozoário.","Porque causa meningite bacteriana secundária."],ans:1,fb:"A doença de Chagas pode ser fatal porque o Trypanosoma cruzi provoca lesões no coração, fígado e outros órgãos. O doente pode morrer por insuficiência cardíaca. As lesões nos órgãos são irreversíveis e não há tratamento eficaz para os estágios avançados."},
+  {q:"Quais são os medicamentos usados no tratamento inicial da doença de Chagas?",opts:["Penicilina e amoxicilina.","Cloroquina e ivermectina.","Benznidazol e nifurtimox.","Metronidazol e tinidazol.","Anfotericina B e fluconazol."],ans:2,fb:"Os medicamentos benznidazol e nifurtimox são usados no tratamento inicial da doença de Chagas, sendo capazes de matar o Trypanosoma cruzi no período inicial da infecção. Não há tratamento eficaz para os estágios avançados."},
+  {q:"A malária é causada por protozoários de qual gênero?",opts:["Trypanosoma","Leishmania","Plasmodium","Entamoeba","Toxoplasma"],ans:2,fb:"A malária é causada pelo protozoário do gênero Plasmodium. Os principais esporozoítos são o Plasmodium vivax, P. falciparum, P. malariae e P. ovale."},
+  {q:"Por que apenas a fêmea do mosquito Anopheles transmite a malária?",opts:["Porque apenas a fêmea possui o protozoário naturalmente.","Porque o macho não pica humanos — ele se alimenta apenas da seiva das plantas.","Porque o macho tem imunidade ao protozoário.","Porque apenas a fêmea voa à noite.","Porque o macho morre antes de poder transmitir a doença."],ans:1,fb:"Apenas a fêmea do Anopheles transmite a malária porque o mosquito fêmea necessita de sangue para a produção de ovos. O mosquito macho alimenta-se apenas da seiva das plantas."},
+  {q:"O que são os 'esporozoítos' no contexto da malária?",opts:["Os sintomas iniciais da malária.","As formas infestantes do Plasmodium injetadas pela fêmea do Anopheles na picada.","Os glóbulos vermelhos infectados pelo Plasmodium.","Os anticorpos produzidos contra o Plasmodium.","Os medicamentos usados no tratamento da malária."],ans:1,fb:"Na picada, a fêmea do Anopheles injeta uma secreção salivar anticoagulante que pode conter as formas infestantes do Plasmodium, chamadas esporozoítos. Estes iniciam o ciclo parasitário no organismo humano."},
 
-function showScreen(name) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById('screen-' + (name === 'pessoas' ? 'pessoas' : name === 'detail' ? 'detail' : 'stats')).classList.add('active');
-  if (name !== 'detail') {
-    const nb = document.getElementById('nav-' + (name === 'pessoas' ? 'pessoas' : 'stats'));
-    if (nb) nb.classList.add('active');
-  }
-  if (name === 'stats') renderStats();
-}
+  // ── FUNGOS – CARACTERÍSTICAS GERAIS E GRUPOS (75-87) ──
+  {q:"Qual é a composição da parede celular dos fungos?",opts:["Celulose, igual à das plantas.","Peptidoglicano, igual à das bactérias.","Quitina.","Pectina e lignina.","Sílica e carbonato de cálcio."],ans:2,fb:"A parede celular dos fungos contém quitina, o que os diferencia das plantas (celulose) e das bactérias (peptidoglicano). Esta é uma característica fundamental do grupo."},
+  {q:"Qual é o modo de nutrição dos fungos?",opts:["Autotróficos por fotossíntese.","Autotróficos por quimiossíntese.","Heterotróficos.","Mixotróficos (auto e heterotróficos).","Fotoautotróficos em ambientes aquáticos."],ans:2,fb:"Os fungos são eucarióticos e heterotróficos. As hifas do micélio liberam enzimas digestivas que atuam extracelularmente, degradando substâncias orgânicas que depois são absorvidas."},
+  {q:"Como as hifas dos fungos realizam a digestão dos alimentos?",opts:["Por fagocitose, englobando partículas sólidas.","Liberam enzimas digestivas extracelularmente que degradam substâncias orgânicas.","Por filtração de nutrientes dissolvidos na água.","Por absorção direta de íons minerais do solo.","Por fotossíntese usando energia luminosa."],ans:1,fb:"As hifas do micélio liberam enzimas digestivas que atuam extracelularmente, degradando substâncias orgânicas presentes no substrato. Os produtos dessa digestão são então absorvidos pelas hifas."},
+  {q:"Como é chamado o conjunto de hifas que forma o 'corpo' do fungo?",opts:["Ascocarpo","Basidiocarpo","Micélio","Esporângio","Conídio"],ans:2,fb:"O conjunto de hifas constitui o micélio, que é o 'corpo' do fungo. As hifas são longos filamentos ramificados com parede quitinosa que crescem apenas nas extremidades."},
+  {q:"Quais são os tipos de hifas que os fungos podem apresentar?",opts:["Hifas fotossintetizantes e hifas saprófitas.","Hifas cenocíticas (não septadas), hifas septadas monocarióticas e hifas septadas dicarióticas.","Apenas hifas septadas com múltiplos núcleos.","Hifas flageladas e hifas imóveis.","Hifas uni e multicelulares."],ans:1,fb:"Os fungos podem apresentar hifas cenocíticas (não septadas), hifas septadas com um núcleo por célula (monocarióticas) e hifas septadas com dois núcleos por célula (dicarióticas)."},
+  {q:"Quantas espécies de fungos estão descritas atualmente e quantas se estima existir?",opts:["10 mil descritas; estimativa de 100 mil no total.","60 mil descritas; estimativa de pelo menos 1 milhão no total.","500 mil descritas; estimativa de 5 milhões no total.","1 mil descritas; estimativa de 10 mil no total.","100 mil descritas; estimativa de 500 mil no total."],ans:1,fb:"Há cerca de 60 mil espécies de fungos descritas atualmente. Estima-se que existam pelo menos 1 milhão de espécies ainda por ser descobertas."},
+  {q:"Quais são os 4 filos em que os fungos são agrupados na classificação moderna?",opts:["Chlorophyta, Phaeophyta, Rhodophyta e Bacillariophyta.","Chytridiomycota, Zygomycota, Ascomycota e Basidiomycota.","Apicomplexa, Rhizopoda, Ciliophora e Zoomastigophora.","Basidiomycota, Oomycota, Glomeromycota e Ascomycota.","Chytridiomycota, Oomycota, Zygomycota e Ascomycota."],ans:1,fb:"A classificação moderna agrupa os fungos em 4 filos: Chytridiomycota (quitrídios), Zygomycota (zigomicetos), Ascomycota (ascomicetos) e Basidiomycota (basidiomicetos)."},
+  {q:"O Batrachochytrium dendrobatidis é um exemplo de quitridiomiceto famoso por causar:",opts:["Uma doença que atinge exclusivamente peixes marinhos.","O desaparecimento de várias espécies de anfíbios.","Infecções em árvores de grande porte em florestas tropicais.","A morte em massa de insetos polinizadores.","Uma epidemia em ruminantes domésticos."],ans:1,fb:"Batrachochytrium dendrobatidis é um fungo quitridiomiceto responsável pelo desaparecimento de várias espécies de anfíbios ao redor do mundo, representando uma das maiores crises de extinção já registradas."},
+  {q:"Qual é a principal característica estrutural dos Zigomicetos (Filo Zygomycota)?",opts:["Possuem hifas septadas e formam cogumelos elaborados.","Possuem hifas cenocíticas (não septadas) e não apresentam corpo de frutificação.","Formam basidiósporos em basídios especializados.","São todos unicelulares e reproduzem-se por brotamento.","Possuem ascos em corpos de frutificação comestíveis."],ans:1,fb:"Os Zigomicetos possuem hifas cenocíticas (não septadas) e não apresentam corpo de frutificação. Um exemplo clássico é o Rhizopus stolonifer, bolor comum em frutas."},
+  {q:"O Rhizopus stolonifer é um exemplo de:",opts:["Ascomiceto produtor de penicilina.","Basidiomiceto comestível.","Zigomiceto que aparece como bolor em alimentos como morangos.","Quitridiomiceto parasita de anfíbios.","Levedura usada na fermentação do pão."],ans:2,fb:"O Rhizopus stolonifer é um Zigomiceto. É o bolor cinza-escuro que comumente aparece em frutas como morangos e pães. Suas hifas cenocíticas formam esporângios onde se produzem esporos."},
+  {q:"O que são os ascos nos Ascomicetos?",opts:["Estruturas de locomoção em meio aquático.","Estruturas em forma de bolsa onde se formam os esporos sexuados (ascósporos).","Corpos de frutificação macroscópicos comestíveis.","Hifas especializadas na absorção de nutrientes.","Organelas de digestão intracelular."],ans:1,fb:"Os ascos (do grego askos, bolsa) são estruturas características dos Ascomicetos onde se formam os esporos sexuados chamados ascósporos. Os ascos podem estar localizados em corpos de frutificação chamados ascocarpos."},
+  {q:"Os Basidiomicetos (Filo Basidiomycota) são reconhecidos popularmente principalmente pelos:",opts:["Bolores que aparecem em alimentos deteriorados.","Cogumelos (basidiocarpos), que são seus corpos de frutificação.","Leveduras usadas na fermentação.","Líquens formados com algas.","Mofos microscópicos em substratos orgânicos."],ans:1,fb:"Os Basidiomicetos formam corpos de frutificação chamados basidiocarpos, conhecidos popularmente como cogumelos. Neles se localizam os basídios, onde são formados os basidiósporos (esporos sexuados)."},
+  {q:"O champignon (Agaricus campestris) pertence a qual grupo de fungos?",opts:["Ascomicetos","Zigomicetos","Quitridiomicetos","Basidiomicetos","Deuteromicetos"],ans:3,fb:"O champignon (Agaricus campestris) é um Basidiomiceto. Seu corpo de frutificação (basidiocarpo) é amplamente utilizado na culinária e é um dos cogumelos comestíveis mais conhecidos do mundo."},
 
-function addPessoa() {
-  const inp = document.getElementById('input-pessoa');
-  const nome = inp.value.trim();
-  if (!nome) return;
-  const p = { id: Date.now().toString(), nome };
-  pessoas.push(p);
-  save();
-  inp.value = '';
-  renderPessoas();
-  showToast('✨ ' + nome + ' adicionado(a)!');
-}
+  // ── REPRODUÇÃO, LÍQUENS, MICORRIZAS E IMPORTÂNCIA DOS FUNGOS (88-99) ──
+  {q:"Como os Ascomicetos se reproduzem assexuadamente?",opts:["Por brotamento, como as leveduras.","Por fragmentação de hifas apenas.","Formam esporos assexuados chamados conídios.","Por divisão binária simples.","Por esporulação em esporângios."],ans:2,fb:"Os Ascomicetos formam esporos assexuados chamados conídios que germinam em condições favoráveis originando novos micélios. As leveduras, como Saccharomyces cerevisiae, reproduzem-se assexuadamente por brotamento."},
+  {q:"Como os Zigomicetos se reproduzem assexuadamente?",opts:["Por conídios formados em conidióforos.","Formam hifas especiais (esporangióforos) com esporângios onde se formam esporos haploides.","Por brotamento de células individuais.","Por fragmentação do micélio apenas.","Por divisão binária das hifas."],ans:1,fb:"Os Zigomicetos formam hifas especiais chamadas esporangióforos, que se diferenciam em esporângios onde são formados esporos haploides. Ao cair em local adequado, o esporo germina originando novo micélio."},
+  {q:"Como se inicia a reprodução sexuada nos fungos?",opts:["Por divisão binária de duas hifas diferentes.","Pela conjugação de duas hifas sexualmente maduras e compatíveis (plasmogamia).","Pela fusão de esporos de diferentes espécies.","Pelo brotamento de células germinativas.","Pela meiose direta de células diploides."],ans:1,fb:"A reprodução sexuada nos fungos inicia-se pela conjugação (plasmogamia) de duas hifas sexualmente maduras e compatíveis. A hifa resultante é dicariótica (dois núcleos haploides por célula)."},
+  {q:"O que é 'cariogamia' no ciclo de vida dos fungos?",opts:["A formação de esporos assexuados por esporulação.","A fragmentação do micélio em condições adversas.","A união dos núcleos haploides das hifas dicarióticas, originando um núcleo diploide.","A germinação dos esporos em condições favoráveis.","A separação de células para formar novos indivíduos."],ans:2,fb:"A cariogamia é a fusão (união) dos núcleos haploides das hifas que se conjugaram, originando um núcleo diploide. Este sofre meiose, originando esporos sexuados (ascósporos nos ascomicetos)."},
+  {q:"Os líquens são formados pela associação entre quais organismos?",opts:["Fungos e bactérias fixadoras de nitrogênio.","Fungos (ascomicetos) com algas ou cianobactérias.","Algas verdes e protozoários.","Fungos e plantas aquáticas.","Bactérias e algas unicelulares."],ans:1,fb:"Os líquens são formados pela associação mutualística de fungos (principalmente ascomicetos) com algas ou com cianobactérias. Essa associação permite que os líquens colonizem ambientes inóspitos."},
+  {q:"Qual é a estrutura das três camadas do corpo de um líquen?",opts:["Três camadas de fungos compactados, sem algas.","Duas camadas externas de hifas compactadas e uma camada interna com células de algas e hifas frouxas.","Uma camada externa de algas e duas internas de fungos.","Três camadas alternadas de algas e fungos.","Apenas uma camada de hifas com algas distribuídas uniformemente."],ans:1,fb:"O corpo do líquen tem três camadas: as duas externas são constituídas por hifas do fungo bem unidas e compactadas; a camada mais interna é formada por células da alga (ou cianobactéria) e por hifas do fungo frouxamente entrelaçadas."},
+  {q:"Como os líquens se reproduzem assexuadamente?",opts:["Por divisão binária das células algais.","Por meio de sorédios.","Por brotamento das hifas fúngicas.","Por fragmentação simples do talo.","Por esporulação das células algais."],ans:1,fb:"Os líquens reproduzem-se assexuadamente por meio de sorédios — pequenas estruturas que contêm células algais envolvidas por hifas fúngicas, capazes de originar novos líquens ao serem dispersas."},
+  {q:"O que são micorrizas e qual é sua origem etimológica?",opts:["Parasitas de fungos em plantas; do latim micro (pequeno) e rizos (fungo).","Associações entre hifas de fungos com raízes de plantas; do grego myketos (fungo) e rhiza (raiz).","Estruturas reprodutivas dos fungos; do grego mykes (esporo) e riza (reprodução).","Doenças causadas por fungos em raízes; do grego mikros (doença) e rhizon (raiz).","Associações entre algas e raízes de plantas; do latim myco (alga) e riza (raiz)."],ans:1,fb:"As micorrizas são associações das hifas de certos fungos com raízes de plantas. O nome vem do grego myketos (fungo) e rhiza (raiz). É uma associação mutualística benéfica para ambos os organismos."},
+  {q:"Qual é o benefício das micorrizas para as PLANTAS?",opts:["Proteção contra doenças causadas por outros fungos.","Melhor absorção de minerais escassos no solo.","Produção de hormônios que estimulam o crescimento.","Eliminação de toxinas presentes no solo.","Fixação de nitrogênio atmosférico."],ans:1,fb:"Com as micorrizas, as plantas conseguem absorver melhor os minerais escassos no solo. As hifas do fungo aumentam muito a superfície de absorção das raízes. Em contrapartida, o fungo obtém açúcares e outras substâncias orgânicas da planta."},
+  {q:"Qual levedura realiza a fermentação da cana-de-açúcar para produção de álcool etílico?",opts:["Penicillium roquefort","Aspergillus niger","Saccharomyces cerevisiae","Rhizopus stolonifer","Batrachochytrium dendrobatidis"],ans:2,fb:"A levedura Saccharomyces cerevisiae é responsável pela fermentação da cana-de-açúcar para produção de álcool etílico. A mesma espécie é usada na produção de pães, vinhos e cervejas."},
+  {q:"Quais fungos são utilizados na produção de esteroides anti-inflamatórios como cortisona e hidrocortisona?",opts:["Saccharomyces cerevisiae e Aspergillus niger.","Penicillium roquefort e Penicillium camemberti.","Rhizopus nigricans e Curvularia lunara.","Batrachochytrium dendrobatidis e Morchella esculenta.","Rhizopus stolonifer e Penicillium sp."],ans:2,fb:"As espécies Rhizopus nigricans e Curvularia lunara são utilizadas pela indústria farmacêutica para a produção de esteroides anti-inflamatórios como cortisona, hidrocortisona e prednisona."},
+  {q:"Qual fungo produz a penicilina e como esse antibiótico revolucionou a medicina?",opts:["Saccharomyces cerevisiae; ao fermentar açúcares que matam bactérias.","Penicillium sp.; ao produzir substâncias que inibem o crescimento bacteriano.","Aspergillus niger; ao produzir ácidos que destroem as paredes bacterianas.","Rhizopus stolonifer; ao competir diretamente com bactérias por nutrientes.","Morchella esculenta; ao sintetizar compostos citotóxicos contra bactérias."],ans:1,fb:"A penicilina é produzida por fungos do gênero Penicillium. É um antibiótico que inibe o crescimento de bactérias, sendo um dos medicamentos mais importantes da história da medicina moderna."}
+];
 
-document.getElementById('input-pessoa').addEventListener('keydown', e => {
-  if (e.key === 'Enter') addPessoa();
-});
+let answered = new Array(questions.length).fill(false);
+let score = 0;
 
-function deletePessoa(id, e) {
-  e.stopPropagation();
-  if (!confirm('Remover esta pessoa e todo o histórico emocional?')) return;
-  pessoas = pessoas.filter(p => p.id !== id);
-  delete emocoes[id];
-  save();
-  renderPessoas();
-}
+function buildQuiz() {
+  const container = document.getElementById('quiz');
+  container.innerHTML = '';
+  const letters = ['A','B','C','D','E'];
 
-function renderPessoas() {
-  const el = document.getElementById('lista-pessoas');
-  const empty = document.getElementById('empty-pessoas');
-  if (pessoas.length === 0) {
-    el.innerHTML = '';
-    el.appendChild(empty);
-    empty.style.display = 'block';
-    return;
-  }
-  empty.style.display = 'none';
+  SECTIONS.forEach(sec => {
+    const secDiv = document.createElement('div');
+    secDiv.className = 'section-title';
+    secDiv.textContent = sec.title;
+    container.appendChild(secDiv);
 
-  el.innerHTML = '';
-  pessoas.forEach(p => {
-    const hist = emocoes[p.id] || {};
-    const todayEmo = hist[today()];
-    const keys = Object.keys(hist).sort().reverse();
-    let preview = todayEmo
-      ? `Hoje: ${todayEmo.emoji} ${todayEmo.name}`
-      : (keys.length ? `Último: ${hist[keys[0]].emoji} ${hist[keys[0]].name}` : 'Nenhum registro ainda');
+    for (let i = sec.range[0]; i <= sec.range[1]; i++) {
+      const q = questions[i];
+      const card = document.createElement('div');
+      card.className = 'question-card';
+      card.id = `card-${i}`;
 
-    const card = document.createElement('div');
-    card.className = 'card person-item';
-    card.onclick = () => openDetail(p.id);
-    card.innerHTML = `
-      <div class="avatar">${p.nome[0].toUpperCase()}</div>
-      <div class="person-info">
-        <div class="person-name">${escHtml(p.nome)}</div>
-        <div class="person-emotion-preview">${preview}</div>
-      </div>
-      <button class="person-delete" onclick="deletePessoa('${p.id}', event)">🗑</button>
-    `;
-    el.appendChild(card);
+      let optsHTML = q.opts.map((o, j) => `
+        <button class="option" onclick="selectAnswer(${i},${j})" id="opt-${i}-${j}">
+          <span class="opt-letter">${letters[j]}</span>
+          <span>${o}</span>
+        </button>`).join('');
+
+      card.innerHTML = `
+        <span class="q-number">Questão ${i+1} de ${questions.length}</span>
+        <div class="q-text">${q.q}</div>
+        <div class="options">${optsHTML}</div>
+        <div class="feedback" id="fb-${i}"></div>`;
+      container.appendChild(card);
+    }
   });
 }
 
-function openDetail(id) {
-  currentPessoaId = id;
-  selectedEmotion = null;
-  const p = pessoas.find(x => x.id === id);
-  if (!p) return;
-
-  document.getElementById('detail-avatar').textContent = p.nome[0].toUpperCase();
-  document.getElementById('detail-name').textContent = p.nome;
-
-  const td = today();
-  document.getElementById('detail-date').textContent = '📅 ' + formatDate(td);
-
-  // emotion grid
-  const grid = document.getElementById('emotion-grid');
-  grid.innerHTML = '';
-  const hist = emocoes[id] || {};
-  const todayEmo = hist[td];
-
-  EMOTIONS.forEach((em, i) => {
-    const btn = document.createElement('button');
-    btn.className = 'emotion-btn' + (todayEmo && todayEmo.name === em.name ? ' selected' : '');
-    btn.innerHTML = `
-      <span class="emotion-emoji">${em.emoji}</span>
-      <span class="emotion-text">
-        <span class="emotion-name">${em.name}</span>
-        <span class="emotion-desc">${em.desc}</span>
-      </span>
-    `;
-    btn.onclick = () => {
-      document.querySelectorAll('.emotion-btn').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectedEmotion = em;
-    };
-    grid.appendChild(btn);
-    if (todayEmo && todayEmo.name === em.name) selectedEmotion = em;
-  });
-
-  // calendar history
-  const calList = document.getElementById('calendar-list');
-  calList.innerHTML = '';
-  const sorted = Object.keys(hist).sort().reverse();
-
-  if (sorted.length === 0) {
-    calList.innerHTML = '<div class="empty-state" style="padding:20px 0"><div class="big" style="font-size:32px">📅</div>Nenhum registro ainda.</div>';
+function selectAnswer(qIdx, optIdx) {
+  if (answered[qIdx]) return;
+  answered[qIdx] = true;
+  const q = questions[qIdx];
+  const card = document.getElementById(`card-${qIdx}`);
+  card.classList.add('answered');
+  for (let j = 0; j < q.opts.length; j++) {
+    const btn = document.getElementById(`opt-${qIdx}-${j}`);
+    btn.disabled = true;
+    if (j === q.ans) btn.classList.add('correct');
+    else if (j === optIdx) btn.classList.add('wrong');
+  }
+  const fb = document.getElementById(`fb-${qIdx}`);
+  if (optIdx === q.ans) {
+    score++;
+    fb.textContent = '✓ Correto! ' + q.fb;
+    fb.className = 'feedback show correct-fb';
   } else {
-    sorted.forEach(date => {
-      const e = hist[date];
-      const item = document.createElement('div');
-      item.className = 'cal-item';
-      item.innerHTML = `
-        <span class="cal-date">${formatDate(date)}</span>
-        <span class="cal-emoji">${e.emoji}</span>
-        <span class="cal-name">${e.name}</span>
-      `;
-      calList.appendChild(item);
-    });
+    fb.textContent = '✗ Incorreto. ' + q.fb;
+    fb.className = 'feedback show wrong-fb';
   }
-
-  showScreen('detail');
+  document.getElementById('live-score').textContent = score;
+  const total = answered.filter(Boolean).length;
+  document.getElementById('prog-label').textContent = `${total} de ${questions.length} respondidas`;
+  document.getElementById('prog-fill').style.width = `${(total/questions.length)*100}%`;
+  if (total === questions.length) showResults();
 }
 
-function saveEmotion() {
-  if (!selectedEmotion) { showToast('Selecione uma emoção primeiro!'); return; }
-  if (!emocoes[currentPessoaId]) emocoes[currentPessoaId] = {};
-  emocoes[currentPessoaId][today()] = selectedEmotion;
-  save();
-  showToast(selectedEmotion.emoji + ' Emoção salva!');
-  openDetail(currentPessoaId); // refresh
+function showResults() {
+  setTimeout(() => {
+    const panel = document.getElementById('results');
+    panel.classList.add('show');
+    panel.scrollIntoView({ behavior: 'smooth' });
+    const pct = Math.round((score / questions.length) * 100);
+    document.getElementById('score-pct').textContent = pct + '%';
+    const circumference = 2 * Math.PI * 45;
+    document.getElementById('ring-fill').style.strokeDashoffset = circumference - (pct/100)*circumference;
+    let title, msg;
+    if (pct >= 90) { title = 'Excelente! 🏆'; msg = `Você acertou ${score} de ${questions.length} questões. Domínio exemplar do conteúdo!`; }
+    else if (pct >= 70) { title = 'Muito Bom! 👏'; msg = `Você acertou ${score} de ${questions.length} questões. Ótimo desempenho!`; }
+    else if (pct >= 50) { title = 'Bom trabalho! 📚'; msg = `Você acertou ${score} de ${questions.length} questões. Revise os pontos errados e tente novamente.`; }
+    else { title = 'Continue estudando! 💪'; msg = `Você acertou ${score} de ${questions.length} questões. Revise o material com atenção antes de tentar novamente.`; }
+    document.getElementById('results-title').textContent = title;
+    document.getElementById('results-msg').textContent = msg;
+  }, 500);
 }
 
-function renderStats() {
-  const el = document.getElementById('stats-content');
-  if (pessoas.length === 0) {
-    el.innerHTML = '<div class="empty-state"><div class="big">📊</div>Adicione pessoas e registre emoções para ver análises.</div>';
-    return;
-  }
-
-  el.innerHTML = '';
-
-  pessoas.forEach(p => {
-    const hist = emocoes[p.id] || {};
-    const total = Object.keys(hist).length;
-    if (total === 0) return;
-
-    // count emotions
-    const counts = {};
-    EMOTIONS.forEach(e => counts[e.name] = 0);
-    Object.values(hist).forEach(e => { if (counts[e.name] !== undefined) counts[e.name]++; });
-    const max = Math.max(...Object.values(counts), 1);
-
-    // dominant emotion
-    let dominant = null;
-    let dMax = 0;
-    EMOTIONS.forEach(e => { if (counts[e.name] > dMax) { dMax = counts[e.name]; dominant = e; } });
-
-    const card = document.createElement('div');
-    card.className = 'card stat-person-card';
-
-    let barsHtml = EMOTIONS.filter(e => counts[e.name] > 0).map(e => `
-      <div class="emotion-bar-row">
-        <span class="emotion-bar-label">${e.emoji}</span>
-        <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(counts[e.name]/max*100)}%"></div></div>
-        <span class="bar-count">${counts[e.name]}</span>
-      </div>
-    `).join('');
-
-    card.innerHTML = `
-      <div class="stat-person-header">
-        <div class="stat-avatar">${p.nome[0].toUpperCase()}</div>
-        <div>
-          <div style="font-weight:500;font-size:15px">${escHtml(p.nome)}</div>
-          <div style="font-size:11px;color:var(--text-dim)">${total} registro${total!==1?'s':''} · Predomina: ${dominant ? dominant.emoji+' '+dominant.name : '—'}</div>
-        </div>
-      </div>
-      <div class="emotion-bar-wrap">${barsHtml}</div>
-    `;
-    el.appendChild(card);
-  });
-
-  if (el.innerHTML === '') {
-    el.innerHTML = '<div class="empty-state"><div class="big">📊</div>Registre emoções para ver análises aqui.</div>';
-  }
+function resetQuiz() {
+  answered = new Array(questions.length).fill(false);
+  score = 0;
+  document.getElementById('live-score').textContent = '0';
+  document.getElementById('prog-label').textContent = '0 de 100 respondidas';
+  document.getElementById('prog-fill').style.width = '0%';
+  document.getElementById('results').classList.remove('show');
+  buildQuiz();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-// Init
-renderPessoas();
-
-// Register SW
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
+buildQuiz();
 </script>
 </body>
 </html>
